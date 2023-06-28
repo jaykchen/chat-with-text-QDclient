@@ -1,0 +1,1053 @@
+Introducing Rust
+This chapter covers
+*  Introducing Rust’s features and goals
+*  Exposing Rust’s syntax
+*  Discussing where to use Rust and when to avoid it
+*  Building your first Rust program
+*  Explaining how Rust compares to object-oriented and wider languages
+
+Welcome to Rust—the empowering programming language. Once you scratch its surface, you will not only find a programming language with unparalleled speed and safety, but one that is enjoyable enough to use every day.
+
+When you begin to program in Rust, it’s likely that you will want to continue to do so. And this book, *Rust in Action*, will build your confidence as a Rust program- mer. But it will not teach you how to program from the beginning. This book is intended to be read by people who are considering Rust as their next language and for those who enjoy implementing practical working examples. Here is a list of some of the larger examples this book includes:
+* Mandelbrot set renderer 
+* A grep clone
+*  Rust in Action 
+* CPU emulator
+* Generative art
+* A database
+* HTTP, NTP, and hexdump clients 
+* LOGO language interpreter
+* Operating system kernel
+
+As you may gather from scanning through that list, reading this book will teach you more than just Rust. It also introduces you to *systems programming *and *low-level programming*. As you work through *Rust in Action*, you’ll learn about the role of an operating system (OS), how a CPU works, how computers keep time, what pointers are, and what a data type is. You will gain an understanding of how the computer’s internal sys- tems interoperate. Learning more than syntax, you will also see why Rust was created and the challenges that it addresses.
+  
+1.1 Where is Rust used?
+Rust has won the “most loved programming language” award in Stack Overflow’s annual developer survey every year in 2016-2020. Perhaps that’s why large technology leaders such as the following have adopted Rust:
+*  Amazon Web Services (AWS) has used Rust since 2017 for its serverless comput- ing offerings, AWS Lambda and AWS Fargate. With that, Rust has gained fur- ther inroads. The company has written the Bottlerocket OS and the AWS Nitro System to deliver its Elastic Compute Cloud (EC2) service.
+*  Cloudflare develops many of its services, including its public DNS, serverless computing, and packet inspection offerings with Rust.
+*  Dropbox rebuilt its backend warehouse, which manages exabytes of storage, with Rust.
+*  Google develops parts of Android, such as its Bluetooth module, with Rust. Rust is also used for the `crosvm `component of Chrome OS and plays an important role in Google’s new operating system, Fuchsia.
+*  Facebook uses Rust to power Facebook’s web, mobile, and API services, as well as parts of HHVM, the HipHop virtual machine used by the Hack programming language.
+*  Microsoft writes components of its Azure platform including a security daemon for its Internet of Things (IoT) service in Rust.
+* Mozilla uses Rust to enhance the Firefox web browser, which contains 15 mil- lion lines of code. Mozilla’s first two Rust-in-Firefox projects, its MP4 metadata parser and text encoder/decoder, led to overall performance and stability improvements.
+*  GitHub’s npm, Inc., uses Rust to deliver “upwards of 1.3 billion package down- loads per day.”
+*  Oracle developed a container runtime with Rust to overcome problems with the Go reference implementation.
+*  Samsung, via its subsidiary SmartThings, uses Rust in its *Hub*, which is the firm- ware backend for its Internet of Things (IoT) service.
+
+Rust is also productive enough for fast-moving startups to deploy it. Here are a few examples:
+* Sourcegraph uses Rust to serve syntax highlighting across all of its languages.
+* Figma employs Rust in the performance-critical components of its multi-player  server.10
+* Parity develops its client to the Ethereum blockchain with Rust.
+
+
+1.2 Advocating for Rust at work
+What is it like to advocate for Rust at work? After overcoming the initial hurdle, it tends to go well. A 2017 discussion, reprinted below, provides a nice anecdote. One member of Google’s Chrome OS team discusses what it was like to introduce the language to the project:
+
+
+indy on Sept 27, 2017
+Is Rust an officially sanctioned language at Google?
+
+zaxcellent on Sept 27, 2017
+Author here: Rust is not officially sanctioned at Google, but there are pockets of folks using it here. The trick with using Rust in this component was convincing my coworkers that no other language was right for job, which I believe to be the case in this instance.
+That being said, there was a ton of work getting Rust to play nice  within the Chrome OS build environment. The Rust folks have been super helpful in answering my questions though.
+
+ekidd on Sept 27, 2017
+The trick with using Rust in this component was convincing my
+coworkers that no other language was right for job, which I believe
+to be the case in this instance.
+I ran into a similar use case in one of my own projects—a vobsub
+subtitle decoder, which parses complicated binary data, and which I someday want to run as web service.  So obviously, I want to ensure that there are no vulnerabilities in my code.
+I wrote the code in Rust, and then I used 'cargo fuzz' to try and find vulnerabilities. After running a billion(!) fuzz iterations, I found 5 bugs (see the 'vobsub' section of the trophy case for a list
+https://github.com/rust-fuzz/trophy-case).
+Happily, not _one_ of those bugs could actually be escalated into an actual exploit. In each case, Rust's various runtime checks successfully caught the problem and turned it into a controlled panic.
+(In practice, this would restart the web server cleanly.)
+So my takeaway from this was that whenever I want a language (1) with no GC, but (2) which I can trust in a security-critical context, Rust is an excellent choice. The fact that I can statically link Linux binaries (like with Go) is a nice plus.
+
+Manishearth on Sept 27, 2017
+Happily, not one of those bugs could actually be escalated into
+an actual exploit. In each case, Rust's various runtime checks
+successfully caught the problem and turned it into a controlled
+panic.
+This has been more or less our experience with fuzzing rust code in firefox too, fwiw. Fuzzing found a lot of panics (and debug assertions / "safe" overflow assertions). In one case it actually found a bug that had been under the radar in the analogous Gecko code for around a decade.
+ 
+From this excerpt, we can see that language adoption has been “bottom up” by engi- neers looking to overcome technical challenges in relatively small projects. Experi- ence gained from these successes is then used as evidence to justify undertaking more ambitious work.
+  
+In the time since late 2017, Rust has continued to mature and strengthen. It has become an accepted part of Google’s technology landscape, and is now an officially sanctioned language within the Android and Fuchsia operating systems.
+ 
+1.3 A taste of the language 
+This section gives you a chance to experience Rust firsthand. It demonstrates how to use the compiler and then moves on to writing a quick program. We tackle full proj- ects in later chapters.
+
+NOTE To install Rust, use the official installers provided at https://rustup.rs/.
+
+ 
+The first thing that most programmers do when they reach for a new programming language is to learn how to print “Hello, world!” to the console. You’ll do that too, but with flair. You’ll verify that everything is in working order *before* you encounter annoying syntax errors. 
+
+If you use Windows, open the Rust command prompt that is available in the Start menu after installing Rust. Then execute this command: 
+```
+C:\> cd %TMP% 
+```
+
+If you are running Linux or macOS, open a Terminal window. Once open, enter the following: 
+```
+$ cd $TMP 
+```
+
+From this point forward, the commands for all operating systems should be the same. If you installed Rust correctly, the following three commands will display “Hello, world!” on the screen (as well as a bunch of other output): 
+```
+ $ cargo new hello
+ $ cd hello
+ $ cargo run
+```
+
+Here is an example of what the entire session looks like when running cmd.exe on MS Windows: 
+```
+ C:\> cd %TMP%
+ C:\Users\Tim\AppData\Local\Temp\> cargo new hello
+
+   Created binary (application) `hello` project
+
+ C:\Users\Tim\AppData\Local\Temp\> cd hello
+ C:\Users\Tim\AppData\Local\Temp\hello\> cargo run
+
+           Compiling hello v0.1.0 (file:///C:/Users/Tim/AppData/Local/Temp/hello)
+            Finished dev [unoptimized + debuginfo] target(s) in 0.32s
+             Running `target\debug\hello.exe`
+        Hello, world!
+```
+
+And on Linux or macOS, your console would look like this: 
+```
+ $ cd $TMP
+        $ cargo new hello**
+    Created binary (application) `hello` package
+ $ cd hello
+ $ cargo run**
+           Compiling hello v0.1.0 (/tmp/hello)
+    Finished dev [unoptimized + debuginfo] target(s) in 0.26s
+     Running `target/debug/hello`
+     Hello, world!
+```
+                    
+If you have made it this far, fantastic! You have run your first Rust code without needing to write any Rust. Let’s take a look at what just happened. 
+
+Rust’s cargo tool provides both a build system and a package manager. That means cargo knows how to convert your Rust code into executable binaries and also can manage the process of downloading and compiling the project’s dependencies. 
+
+`cargo new `creates a project for you that follows a standard template. The `tree `command can reveal the default project structure and the files that are created after issuing `cargo new`: 
+```
+$ tree hello
+hello
+├── Cargo.toml └── src
+└── main.rs
+1 directory, 2 files
+```
+
+All Rust projects created with cargo have the same structure. In the base directory, a file called Cargo.toml describes the project’s metadata, such as the project’s name, its version, and its dependencies. Source code appears in the src directory. Rust source code files use the .rs filename extension. To view the files that `cargo new `creates, use the `tree `command. 
+
+The next command that you executed was `cargo run`. This line is much simpler to grasp, but cargo actually did much more work than you realized. You asked cargo to run the project. As there was nothing to actually run when you invoked the command, it decided to compile the code in debug mode on your behalf to provide maximal error information. As it happens, the src/[main.rs](http://main.rs/) file always includes a “Hello, world!” stub. The result of that compilation was a file called hello (or hello.exe). The hello file was executed, and the result printed to your screen. 
+Executing `cargo run `has also added new files to the project. We now have a Cargo.lock file in the base of our project and a target/ directory. Both that file and the directory are managed by cargo. Because these are artifacts of the compilation process, we won’t need to touch these. Cargo.lock is a file that specifies the exact ver- sion numbers of all the dependencies so that future builds are reliably built the same way until Cargo.toml is modified. 
+
+Running `tree `again reveals the new structure created by invoking `cargo run `to compile the hello project: 
+```
+$ tree --dirsfirst hello
+hello
+├── src
+│ └── main.rs
+├── target
+│ └── debug
+│ ├── build
+│ ├── deps
+│ ├── examples
+│ ├── native
+│ └── hello ├── Cargo.lock └── Cargo.toml
+```
+
+For getting things up and running, well done! Now that we’ve cheated our way to “Hello, World!”, let’s get there via the long way.
+
+1.3.2 Your first Rust program
+For our first program, we want to write something that outputs the following text in multiple languages:
+```
+Hello, world!
+Grüß Gott!
+ハロー・ワールド
+```
+
+You have probably seen the first line in your travels. The other two are there to highlight a few of Rust’s features: easy iteration and built-in support for Unicode. For this program, we’ll use cargo to create it as before. Here are the steps to follow:
+1 Open a console prompt.
+2 Run `cd %TMP%` on MS Windows; otherwise `cd $TMP`.
+3 Run `cargo new hello2` to create a new project.
+4 Run `cd hello2` to move into the project’s root directory.
+5 Open the file src/main.rs in a text editor.
+6 Replace the text in that file with the text in listing
+
+Listing 1.1 “Hello World!” in three languages
+```
+1 fn greet_world(){
+2 println!("Hello, world!");
+3 let southern germany = "Grüß Gott!";
+4 let japan
+ = "ハロー·ワールド";
+5 let regions = [southern germany, japan];
+6 for region in regions.iter() {
+7 println!("{}", &region);
+8    }
+9 }
+10
+11 fn main(){
+12 greet_world();
+13 }
+```
+
+Now that src/main.rs is updated, execute `cargo run` from the hello2/ directory. You should see three greetings appear after some output generated from cargo itself:
+```
+$ cargo run
+   Compiling hello2 v0.1.0 (/path/to/ch1/ch1-hello2)
+    Finished dev [unoptimized + debuginfo] target(s) in 0.95s
+     Running `target/debug/hello2`
+Hello, world!
+Grüß Gott!
+ハロー・ワールド
+```
+
+Let’s take a few moments to touch on some of the interesting elements of Rust from listing 1.1.
+
+One of the first things that you are likely to notice is that strings in Rust are able to include a wide range of characters. Strings are guaranteed to be encoded as UTF-8. This means that you can use non-English languages with relative ease.
+
+The one character that might look out of place is the exclamation mark after `println`. If you have programmed in Ruby, you may be used to thinking that it is used to signal a destructive operation. In Rust, it signals the use of a macro. Macros can be thought of as fancy functions for now. These offer the ability to avoid boilerplate code. In the case of `println!`, there is a lot of type detection going on under the hood so that arbitrary data types can be printed to the screen.
+
+1.4 Downloading the book’s source code
+In order to follow along with the examples in this book, you might want to access the source code for the listings. For your convenience, source code for every example is available from two sources:
+https://manning.com/books/rust-in-action 
+https://github.com/rust-in-action/code
+
+1.5 What does Rust look and feel like?
+Rust is the programming language that allows Haskell and Java programmers to get along. Rust comes close to the high-level, expressive feel of dynamic languages like Haskell and Java while achieving low-level, bare-metal performance.
+
+We looked at a few “Hello, world!” examples in section 1.3, so let’s try something slightly more complex to get a better feel for Rust’s features. Listing 1.2 provides a quick look at what Rust can do for basic text processing. The source code for this list- ing is in the ch1/ch1-penguins/src/main.rs file. Some features to notice include
+* Common control flow mechanisms—This includes `for `loops and the `continue `keyword.
+* Method syntax—Although Rust is not object-oriented as it does not support inheritance, it carries over this feature of object-oriented languages.
+* Higher-order programming*—Functions can both accept and return functions. For example, line 19 (`.map(|field| field.trim())) `includes a *closure*, also known as an *anonymous function *or *lambda function*.
+* Type annotations—Although relatively rare, these are occasionally required as a hint to the compiler (for example, see line 27 beginning with `if let Ok(length)`).
+* Conditional compilation—In the listing, lines 21–24 (`ifcfg!(...);`) are not included in release builds of the program.
+* Implicit return—Rust provides a `return `keyword, but it’s usually omitted. Rust is an *expression-based language*. 
+
+Listing 1.2 Example of Rust code showing some basic processing of CSV data
+```
+1 fn main(){
+2 let penguin data = "\
+3 common name,length (cm)
+4 Little penguin, 33
+5 Yellow-eyed penguin, 65
+6 Fiordland penguin, 60
+7 Invalid, data
+8 " ;
+9
+10 let records = penguin_data.lines ();
+11
+12 for (i, record) in records.enumerate()
+13 if i == 0 || record.trim().len() ==
+14 continue;
+15 }
+16
+17 let fields: Vec<_> = record 
+18 .split (',')
+19 .map(|field| field.trim())
+20 .collect ();
+21 if cfg! (debug_assertions) {
+22 eprintln! ("debug: {:?} -> {:?}",
+23 record, fields);
+24 }
+25
+26 let name = fields [0];
+27 if let Ok(length) = fields[1].parse: :<f32>(){
+28 println!("{}, {}cm", name, length);
+29  }
+30 }
+31}
+```
+
+Listing 1.2 might be confusing to some readers, especially those who have never seen Rust before. Here are some brief notes before moving on:
+* On line 17, the `fields `variable is annotated with the type `Vec<_>`. `Vec `is short- hand for `_vector_`, a collection type that can expand dynamically. The under- score (_) instructs Rust to infer the type of the elements. 
+* On lines 22 and 28, we instruct Rust to print information to the console. The `println! `macro prints its arguments to standard out (stdout), whereas `eprintln! `prints to standard error (stderr). 
+* Macros are similar to functions except that instead of returning data, these return code. Macros are often used to simplify common patterns. 
+* `eprintln! `and `println! `both use a string literal with an embedded mini- language in their first argument to control their output. The `{} `placeholder tells Rust to use a programmer-defined method to represent the value as a string rather than the default representation available with `{:?}`.  
+* Line 27 contains some novel features. `if let Ok(length) = fields[1].parse ::<f32>() `reads as “attempt to parse `fields[1] `as a 32-bit floating-point num- ber and, if that is successful, then assign the number to the length variable.” 
+* The `if let `construct is a concise method of conditionally processing data that also provides a local variable assigned to that data. The `parse() `method returns `Ok(T) `(where `T `stands for any type) when it can successfully parse the string; otherwise, it returns `Err(E) `(where `E `stands for an error type). The effect of `if let Ok(T) `is to skip any error cases like the one that’s encountered while processing the line `Invalid,data`.
+* When Rust is unable to infer the types from the surrounding context, it will ask for you to specify those. The call to `parse() `includes an inline type annota- tion as `parse::<f32>()`.
+
+Converting source code into an executable file is called compiling. To compile Rust code, we need to install the Rust compiler and run it against the source code. To com- pile listing 1.2, follow these steps:
+1 Open a console prompt (such as cmd.exe, PowerShell, Terminal, or Alacritty).
+2 Move to the ch1/ch1-penguins directory (not ch1/ch1-penguins/src) of the
+source code you downloaded in section 1.4.
+3 Execute `cargo run`. Its output is shown in the following code snippet:
+```
+$ cargo run
+         Compiling ch1-penguins v0.1.0 (../code/ch1/ch1-penguins)
+          Finished dev [unoptimized + debuginfo] target(s) in 0.40s
+           Running `target/debug/ch1-penguins`
+      dbg: "  Little penguin,33" -> ["Little penguin", "33"]
+      Little penguin, 33cm
+      dbg: "  Yellow-eyed penguin,65" -> ["Yellow-eyed penguin", "65"]
+      Yellow-eyed penguin, 65cm
+      dbg: "  Fiordland penguin,60" -> ["Fiordland penguin", "60"]
+      Fiordland penguin, 60cm
+      dbg: "  Invalid,data" -> ["Invalid", "data"]
+```
+
+You probably noticed the distracting lines starting with dbg:. We can eliminate these by compiling a release build using cargo’s `--release` flag. This conditional compilation functionality is provided by the `cfg!(debug_assertions) { ... }` block within lines 22–24 of listing 1.2. Release builds are much faster at runtime, but incur longer compilation times:
+```
+ $ cargo run --release
+           Compiling ch1-penguins v0.1.0 (.../code/ch1/ch1-penguins)
+            Finished release [optimized] target(s) in 0.34s
+             Running `target/release/ch1-penguins`
+        Little penguin, 33cm
+        Yellow-eyed penguin, 65cm
+        Fiordland penguin, 60cm
+```
+
+ 
+It’s possible to further reduce the output by adding the `-q `flag to `cargo `commands. `-q `is shorthand for *quiet*. The following snippet shows what that looks like:
+```
+$ cargo run -q --release
+        Little penguin, 33cm
+        Yellow-eyed penguin, 65cm
+        Fiordland penguin, 60cm
+```
+
+Listing 1.1 and listing 1.2 were chosen to pack as many representative features of Rust into examples that are easy to understand. Hopefully these demonstrated that Rust pro- grams have a high-level feel, paired with low-level performance. Let’s take a step back from specific language features now and consider some of the thinking behind the language and where it fits within the programming language ecosystem.
+
+1.6 What is Rust?
+Rust’s distinguishing feature as a programming language is its ability to prevent invalid data access at compile time. Research projects by Microsoft’s Security Response Center and the Chromium browser project both suggest that issues relating to invalid data access account for approximately 70% of serious security bugs.13 Rust eliminates that class of bugs. It guarantees that your program is memory-safe without imposing any run- time costs.
+
+Other languages can provide this level of safety, but these require adding checks that execute while your program is running, thus slowing it down. Rust manages to break out of this continuum, creating its own space as illustrated by figure 1.1.
+
+Rust’s distinguishing feature as a professional community is its willingness to explicitly include values into its decision-making process. This ethos of inclusion is pervasive. Public messaging is welcoming. All interactions within the Rust community are governed by its code of conduct. Even the Rust compiler’s error messages are ridiculously helpful.
+
+Until late 2018, visitors to the Rust home page were greeted with the (technically heavy) message, “Rust is a systems programming language that runs blazingly fast, pre- vents segfaults, and guarantees thread safety.” At that point, the community imple- mented a change to its wording to put its users (and its potential users) at the center (table 1.1).
+
+Table 1.1 Rust slogans over time. As Rust has developed its confidence, it has increasingly embraced the idea of acting as a facilitator and supporter of everyone wanting to achieve their programming aspirations.
+```
+| Until late 2018| From that point onward| 
+| -------- | -------- | 
+| “Rust is a systems programming language that runs blazingly  fast, prevents segfaults, and guarantees thread safety.”  | “Empowering everyone to build reliable and efficient software.” |
+
+```
+
+Rust is labelled as a systems programming language, which tends to be seen as quite a spe- cialized, almost esoteric branch of programming. However, many Rust programmers have discovered that the language is applicable to many other domains. Safety, pro- ductivity, and control are useful in all software engineering projects. Moreover, the Rust community’s inclusiveness means that the language benefits from a steady stream of new voices with diverse interests.
+
+Let’s flesh out those three goals: safety, productivity, and control. What are these and why do these matter?
+
+1.6.1 Goal of Rust: Safety
+Rust programs are free from
+* Dangling pointers—Live references to data that has become invalid over the course of the program (see listing 1.3)
+* Data races—The inability to determine how a program will behave from run to run because external factors change (see listing 1.4)
+* Buffer overflow—An attempt to access the 12th element of an array with only 6 elements (see listing 1.5)
+* Iterator invalidation—An issue caused by something that is iterated over after being altered midway through (see listing 1.6)
+
+When programs are compiled in debug mode, Rust also protects against integer over- flow. What is integer overflow? Well, integers can only represent a finite set of num- bers; these have a fixed-width in memory. Integer overflow is what happens when the integers hit their limit and flow over to the beginning again.
+
+The following listing shows a dangling pointer. Note that you’ll find this source code in the ch1/ch1-cereals/src/main.rs file.
+
+Listing 1.3 Attempting to create a dangling pointer
+```
+1 #[derive (Debug)]
+2 enum Cereal
+3 Barley, Millet, Rice,
+4 Rye, Spelt, Wheat,
+5 }
+6
+7 fn main() {
+8 let mut grains: Vec<Cereal> = vec! [];
+9 grains.push (Cereal::Rye);
+10 drop (grains);
+11 println! ("{:?}", grains);
+12 }
+```
+
+Listing 1.3 contains a pointer within grains, which is created on line 8. Vec is implemented with an internal pointer to an underlying array. But the listing does not compile. An attempt to do so triggers an error message that complains about attempting to “borrow” a “moved” value. Learning how to interpret that error message and to fix the underlying error are topics for the pages to come. Here’s the output from attempting to compile the code for listing 1.3:
+```
+$ cargo run
+   Compiling ch1-cereals v0.1.0 (/rust-in-action/code/ch1/ch1-cereals)
+error[E0382]: borrow of moved value: `grains`
+  --> src/main.rs:12:22
+   |
+8  | let mut grains: Vec<Cereal> = vec![];
+   | ------- move occurs because `grains` has type
+           `std::vec::Vec<Cereal>`, which does not implement the `Copy` trait
+9  |grains.push(Cereal::Rye);
+10 |drop(grains);
+     ------ value moved here
+11 |
+12 |println!("{:?}", grains);
+   |          value borrowed here after move
+
+error: aborting due to previous error
+    
+For more information about this error, try `rustc --explain E0382`.
+error: could not compile `ch1-cereals`.
+```
+    
+Listing 1.4 shows an example of a data race condition. If you remember, this condition results from the inability to determine how a program behaves from run to run due to changing external factors. You’ll find this code in the ch1/ch1-race/src/ main.rs file.
+
+Listing 1.4 Example of Rust preventing a race condition
+```
+1 use std::thread;
+2 fn main() {
+3     let mut data = 100;
+4
+5     thread::spawn(|| { data = 500; });
+6     thread::spawn(|| { data = 1000; });
+7     println!("{}", data);
+8}
+```
+
+If you are unfamiliar with the term thread, the upshot is that this code is not determin- istic. It’s impossible to know what value data will hold when main() exits. On lines 6 and 7 of the listing, two threads are created by calls to thread::spawn(). Each call takes a closure as an argument, denoted by vertical bars and curly braces (e.g., || {...}). The thread spawned on line 5 is attempting to set the data variable to 500, whereas the thread spawned on line 6 is attempting to set it to 1,000. Because the scheduling of threads is determined by the OS rather than the program, it’s impossible to know if the thread defined first will be the one that runs first.
+    
+Attempting to compile listing 1.5 results in a stampede of error messages. Rust does not allow multiple places in an application to have write access to data. The code attempts to allow this in three places: once within the main thread running main() and once in each child thread created by thread::spawn(). Here’s the compiler message:
+```
+$ cargo run
+   Compiling ch1-race v0.1.0 (rust-in-action/code/ch1/ch1-race)
+error[E0373]: closure may outlive the current function, but it borrows `data`, which is owned by the current function
+ --> src/main.rs:6:19
+  |
+6 |     thread::spawn(|| { data = 500; });
+| ^^ ---- `data` is borrowed here 
+|            |
+| may outlive borrowed value `data` |
+note: function requires argument type to outlive `'static`
+ --> src/main.rs:6:5
+  |
+6 |     thread::spawn(|| { data = 500; });
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+help: to force the closure to take ownership of `data`
+      (and any other referenced variables), use the `move` keyword
+  |
+  |  thread::spawn(move || { data = 500; });
+  |            ^^^^^^^
+    error: aborting due to 4 previous errors
+    
+Some errors have detailed explanations: E0373, E0499, E0502.
+For more information about an error, try `rustc --explain E0373`.
+error: could not compile `ch1-race`.
+```
+    
+Listing 1.5 provides an example of a buffer overflow. A buffer overflow describes situa- tions where an attempt is made to access items in memory that do not exist or that are illegal. In our case, an attempt to access fruit[4] results in the program crashing, as the fruit variable only contains three fruit. The source code for this listing is in the file ch1/ch1-fruit/src/main.rs.
+    
+Listing 1.5 Example of invoking a panic via a buffer overflow
+```
+1 fn main() {
+2 let fruit = vec![' ', ' ', ' ']; 3
+4     let buffer_overflow = fruit[4];
+5     assert_eq!(buffer_overflow, '  ')
+6}
+```
+    
+When listing 1.5 is compiled and executed, you’ll encounter this error message:
+```
+    $ cargo run
+   Compiling ch1-fruit v0.1.0 (/rust-in-action/code/ch1/ch1-fruit)
+    Finished dev [unoptimized + debuginfo] target(s) in 0.31s
+     Running `target/debug/ch1-fruit`
+thread 'main' panicked at 'index out of bounds:
+    the len is 3 but the index is 4', src/main.rs:3:25
+note: run with `RUST_BACKTRACE=1` environment variable
+    to display a backtrace
+```
+    
+The next listing shows an example of iterator invalidation, where an issue is caused by something that’s iterated over after being altered midway through. The source code for this listing is in ch1/ch1-letters/src/main.rs.
+    
+Listing 1.6 Attempting to modify an iterator while iterating over it
+```
+1 fn main() {
+2     let mut letters = vec![
+3 "a", "b", "c"
+4 ];
+5
+6 for letter in letters {
+7 println!("{}", letter);
+8 letters.push(letter.clone());
+9   }
+10}
+```
+    
+Listing 1.6 fails to compile because Rust does not allow the letters variable to be modified within the iteration block. Here’s the error message: 
+```
+$ cargo run
+   Compiling ch1-letters v0.1.0 (/rust-in-action/code/ch1/ch1-letters)
+error[E0382]: borrow of moved value: `letters`
+ --> src/main.rs:8:7
+  |
+2 | let mut letters = vec![
+    ----------- move occurs because `letters` has type
+                `std::vec::Vec<&str>`, which does not
+                implement the `Copy` trait
+    ...   
+6 | for letter in letters {
+  |      -------
+  |    |
+  | `letters` moved due to this implicit call
+  |       to `.into_iter()`
+  |  help: consider borrowing to avoid moving
+  |        into the for loop: `&letters`
+7 | println!("{}", letter);
+8 | letters.push(letter.clone());
+  | ^^^^^^^ value borrowed here after move
+
+error: aborting due to previous error
+    
+For more information about this error, try `rustc --explain E0382`.
+    
+error: could not compile `ch1-letters`.
+To learn more, run the command again with --verbose.
+```
+    
+While the language of the error message is filled with jargon (borrow, move, trait, and so on), Rust has protected the programmer from stepping into a trap that many others fall into. And fear not—that jargon will become easier to understand as you work through the first few chapters of this book.
+    
+Knowing that a language is safe provides programmers with a degree of liberty. Because they know their program won’t implode, they become much more willing to experiment. Within the Rust community, this liberty has spawned the expression fear- less concurrency.
+    
+1.6.2 Goal of Rust: Productivity
+When given a choice, Rust prefers the option that is easiest for the developer. Many of its more subtle features are productivity boosts. But programmer productivity is a diffi- cult concept to demonstrate through an example in a book. Let’s start with something that can snag beginners—using assignment (=) within an expression that should use
+an equality (==) test:
+```  
+1 fn main() {
+2 let a = 10;
+3
+4 if a = 10 {
+5 println!("a equals ten");
+6  } 
+7}  
+```
+    
+In Rust, the preceding code fails to compile. The Rust compiler generates the following message:
+```
+error[E0308]: mismatched types
+ --> src/main.rs:4:8
+  |
+4 | if a = 10 { 
+  | ^^^^^^ 
+  |     |
+  |        expected `bool`, found `()`
+  |        help: try comparing for equality: `a == 10`
+error: aborting due to previous error
+For more information about this error, try `rustc --explain E0308`.
+error: could not compile `playground`.
+To learn more, run the command again with --verbose.
+```
+
+At first, “mismatched types” might feel like a strange error message to encounter. Surely we can test variables for equality against integers.
+    
+After some thought, it becomes apparent why the if test receives the wrong type. The if is not receiving an integer. It’s receiving the result of an assignment. In Rust, this is the blank type: (). () is pronounced unit.
+    
+When there is no other meaningful return value, expressions return (). As the fol- lowing shows, adding a second equals sign on line 4 results in a working program that prints a equals ten:
+```
+1 fn main() {
+2 let a = 10;
+3
+4 if a == 10 {
+5 println!("a equals ten");
+6} 
+7}
+```
+
+Rust has many ergonomic features. It offers generics, sophisticated data types, pattern matching, and closures.15 Those who have worked with other ahead-of-time compila- tion languages are likely to appreciate Rust’s build system and its comprehensive pack- age manager: cargo.
+    
+At first glance, we see that cargo is a front end for rustc, the Rust compiler, but cargo provides several additional utilities including the following:
+* cargo new creates a skeleton Rust project in a new directory (cargo init uses the current directory).
+* cargo build downloads dependencies and compiles the code.
+* cargo run executes cargo build and then also runs the resulting executable
+file.
+* cargo doc builds HTML documentation for every dependency in the current project.
+
+1.6.3 Goal of Rust: Control
+Rust offers programmers fine-grained control over how data structures are laid out in memory and their access patterns. While Rust uses sensible defaults that align with its “zero cost abstractions” philosophy, those defaults do not suit all situations.
+    
+At times, it is imperative to manage your application’s performance. It might mat- ter to you that data is stored in the stack rather than on the heap. Perhaps, it might make sense to add reference counting to create a shared reference to a value. Occasion- ally, it might be useful to create one’s own type of pointer for a particular access pat- tern. The design space is large and Rust provides the tools to allow you to implement your preferred solution.
+    
+NOTE If terms such as stack, heap, and reference counting are new, don’t put the book down! We’ll spend lots of time explaining these and how they work together throughout the rest of the book.
+    
+Listing 1.7 prints the line a: 10,b:20,c:30,d:Mutex{data:40}. Each represen- tation is another way to store an integer. As we progress through the next few chap- ters, the trade-offs related to each level become apparent. For the moment, the important thing to remember is that the menu of types is comprehensive. You are wel- come to choose exactly what’s right for your specific use case.
+Listing 1.7 also demonstrates multiple ways to create integers. Each form provides differing semantics and runtime characteristics. But programmers retain full control of the trade-offs that they want to make.
+Listing 1.7 Multiple ways to create integer values
+```
+ 1 use std::rc::Rc;
+ 2 use std::sync::{Arc, Mutex};
+ 3
+ 4 fn main() {
+ 5 let a = 10;
+ 6     let b = Box::new(20);
+ 7     let c = Rc::new(Box::new(30));
+ 8     let d = Arc::new(Mutex::new(40));
+ 9     println!("a: {:?}, b: {:?}, c: {:?}, d: {:?}", a, b, c, d);
+10 }
+```
+
+To understand why Rust is doing something the way it is, it can be helpful to refer back to these three principles:
+* The language’s first priority is safety.
+* Data within Rust is immutable by default.
+* Compile-time checks are strongly preferred. Safety should be a “zero-cost abstraction.”
+    
+1.7 Rust’s big features
+Our tools shape what we believe we can create. Rust enables you to build the software that you want to make, but were too scared to try. What kind of tool is Rust? Flowing from the three principles discussed in the last section are three overarching features of the language:
+* Performance
+* Concurrency
+* Memory efficiency
+    
+1.7.1 Performance
+Rust offers all of your computer’s available performance. Famously, Rust does not rely on a garbage collector to provide its memory safety.
+    
+There is, unfortunately, a problem with promising you faster programs: the speed of your CPU is fixed. Thus, for software to run faster, it needs to do less. Yet, the lan- guage is large. To resolve this conflict, Rust pushes the burden onto the compiler.
+    
+The Rust community prefers a bigger language with a compiler that does more, rather than a simpler language where the compiler does less. The Rust compiler aggressively optimizes both the size and speed of your program. Rust also has some less obvious tricks:
+* Cache-friendly data structures are provided by default. Arrays usually hold data within Rust programs rather than deeply nested tree structures that are created by pointers. This is referred to as data-oriented programming.
+* The availability of a modern package manager (cargo) makes it trivial to benefit from tens of thousands of open source packages. C and C++ have much less consistency here, and building large projects with many dependencies is typically difficult. 
+* Methods are always dispatched statically unless you explicitly request dynamic dispatch. This enables the compiler to heavily optimize code, sometimes to the point of eliminating the cost of a function call entirely.
+
+1.7.2 Concurrency
+Asking a computer to do more than one thing at the same time has proven difficult for software engineers. As far as an OS is concerned, two independent threads of exe- cution are at liberty to destroy each other if a programmer makes a serious mistake. Yet Rust has spawned the expression fearless concurrency. Its emphasis on safety crosses the bounds of independent threads. There is no global interpreter lock (GIL) to con- strain a thread’s speed. We explore some of the implications of this in part 2.
+    
+1.7.3 Memory efficiency
+Rust enables you to create programs that require minimal memory. When needed, you can use fixed-size structures and know exactly how every byte is managed. High- level constructs, such as iteration and generic types, incur minimal runtime overhead.
+    
+1.8 Downsides of Rust
+It’s easy to talk about this language as if it is the panacea for all software engineering. For example
+* “A high-level syntax with low-level performance!” 
+* “Concurrency without crashes!”
+* “C with perfect safety!”
+These slogans (sometimes overstated) are great. But for all of its merits, Rust does have some disadvantages.
+    
+1.8.1 Cyclic data structures
+In Rust, it is difficult to model cyclic data like an arbitrary graph structure. Imple- menting a doubly-linked list is an undergraduate-level computer science problem. Yet Rust’s safety checks do hamper progress here. If you’re new to the language, avoid implementing these sorts of data structures until you’re more familiar with Rust.
+    
+1.8.2 Compile times
+Rust is slower at compiling code than its peer languages. It has a complex compiler toolchain that receives multiple intermediate representations and sends lots of code to the LLVM compiler. The unit of compilation for a Rust program is not an individ- ual file but a whole package (known affectionately as a crate). As crates can include TLS security case studies 21 multiple modules, these can be exceedingly large units to compile. Although this enables whole-of-crate optimization, it requires whole-of-crate compilation as well.
+    
+1.8.3 Strictness
+It’s impossible—well, difficult—to be lazy when programming with Rust. Programs won’t compile until everything is just right. The compiler is strict, but helpful.
+    
+Over time, it’s likely that you’ll come to appreciate this feature. If you’ve ever pro- grammed in a dynamic language, then you may have encountered the frustration of your program crashing because of a misnamed variable. Rust brings that frustration forward so that your users don’t have to experience the frustration of things crashing.
+    
+1.8.4 Size of the language
+Rust is large! It has a rich type system, se several dozen keywords, and includes some fea- tures that are unavailable in other languages. These factors all combine to create a steep learning curve. To make this manageable, I encourage learning Rust gradually. Start with a minimal subset of the language and give yourself time to learn the details when you need these. That is the approach taken in this book. Advanced concepts are deferred until much later.
+    
+1.8.5 Hype
+The Rust community is wary of growing too quickly and being consumed by hype. Yet, a number of software projects have encountered this question in their Inbox: “Have you considered rewriting this in Rust?” Unfortunately, software written in Rust is still software. It not immune to security problems and does not offer a panacea to all of software engineering’s ills.
+    
+1.9 TLS security case studies
+To demonstrate that Rust will not alleviate all errors, let’s examine two serious exploits that threatened almost all internet-facing devices and consider whether Rust would have prevented those.
+By 2015, as Rust gained prominence, implementations of SSL/TLS (namely, OpenSSL and Apple’s own fork) were found to have serious security holes. Known informally as Heartbleed and goto fail;, both exploits provide opportunities to test Rust’s claims of memory safety. Rust is likely to have helped in both cases, but it is still possi- ble to write Rust code that suffers from similar issues.
+    
+1.9.1 Heartbleed
+Heartbleed, officially designated as CVE-2014-0160,16 was caused by re-using a buffer incorrectly. A buffer is a space set aside in memory for receiving input. Data can leak from one read to the next if the buffer’s contents are not cleared between writes.
+Why does this situation occur? Programmers hunt for performance. Buffers are reused to minimize how often memory applications ask for memory from the OS.
+    
+Imagine that we want to process some secret information from multiple users. We decide, for whatever reason, to reuse a single buffer through the course of the pro- gram. If we don’t reset this buffer once we use it, information from earlier calls will leak to the latter ones. Here is a précis of a program that would encounter this error:
+```
+let buffer = &mut[0u8; 1024];
+  read_secrets(&user1, buffer);
+  store_secrets(buffer);
+  read_secrets(&user2, buffer);
+  store_secrets(buffer);
+```
+    
+Rust does not protect you from logical errors. It ensures that your data is never able to be written in two places at the same time. It does not ensure that your program is free from all security issues.
+
+    
+1.9.2 Go to fail;
+The goto fail; bug, officially designated as CVE-2014-1266,17 was caused by program- mer error coupled with C design issues (and potentially by its compiler not pointing out the flaw). A function that was designed to verify a cryptographic key pair ended up skipping all checks. Here is a selected extract from the original SSLVerifySigned- ServerKeyExchange function with a fair amount of obfuscatory syntax retained:18
+```
+1 static OSStatus
+2 SSLVerifySignedServerKeyExchange (SSLContext *ctx,
+3      bool isRsa,
+4      SSLBuffer signedParams, 
+5      uint8 t *signature,  
+6      UInt16 signatureLen)
+7{
+8 OSStatus err;
+9 ...
+10
+11 if ((err = SSLHashSHA1.update( 
+12 &hashCtx, &serverRandom)) != 0)
+13 go to fail;
+14
+15 if ((err = SSLHashSHA1.update(&hashCtx, &signedParams)) != 0)
+```
+    
+In the example code, the issue lies between lines 15 and 17. In C, logical tests do not require curly braces. C compilers interpret those three lines like this:
+```
+if ((err = SSLHashSHA1.update(&hashCtx, &signedParams)) != 0) {
+goto fail; }
+goto fail;
+```
+Would Rust have helped? Probably. In this specific case, Rust’s grammar would have caught the bug. It does not allow logical tests without curly braces. Rust also issues a warning when code is unreachable. But that doesn’t mean the error is made impossi- ble in Rust. Stressed programmers under tight deadlines make mistakes. In general, similar code would compile and run.
+
+1.10 Where does Rust fit best?
+Although it was designed as a systems programming language, Rust is a general-purpose language. It has been successfully deployed in many areas, which we discuss next.
+    
+1.10.1 Command-line utilities
+Rust offers three main advantages for programmers creating command-line utilities: minimal startup time, low memory use, and easy deployment. Programs start their work quickly because Rust does not need to initialize an interpreter (Python, Ruby, etc.) or virtual machine (Java, C#, etc.).
+
+As a bare metal language, Rust produces memory-efficient programs.19 As you’ll see throughout the book, many types are zero-sized. That is, these only exist as hints to the compiler and take up no memory at all in the running program.
+    
+Utilities written in Rust are compiled as static binaries by default. This compilation method avoids depending on shared libraries that you must install before the pro- gram can run. Creating programs that can run without installation steps makes these easy to distribute.
+    
+1.10.2 Data processing
+Rust excels at text processing and other forms of data wrangling. Programmers bene- fit from control over memory use and fast startup times. As of mid-2017, Rust touts the world’s fastest regular expression engine. In 2019, the Apache Arrow data-processing project—foundational to the Python and R data science ecosystems—accepted the Rust-based DataFusion project.
+    
+Rust also underlies the implementation of multiple search engines, data-processing engines, and log-parsing systems. Its type system and memory control provide you with the ability to create high throughput data pipelines with a low and stable memory footprint. Small filter programs can be easily embedded into the larger framework via Apache Storm, Apache Kafka, or Apache Hadoop streaming.
+    
+1.10.3 Extending applications
+Rust is well suited for extending programs written in a dynamic language. This enables JNI (Java Native Interface) extensions, C extensions, or Erlang/Elixir NIFs (native implemented functions) in Rust. C extensions are typically a scary proposition. These tend to be quite tightly integrated with the runtime. Make a mistake and you could be looking at runaway memory consumption due to a memory leak or a com- plete crash. Rust takes away a lot of this anxiety.
+* Sentry, a company that processes application errors, finds that Rust is an excellent candidate for rewriting CPU-intensive components of their Python system.20
+* Dropbox used Rust to rewrite the file synchronization engine of its client-side application: “More than performance, [Rust’s] ergonomics and focus on cor- rectness have helped us tame sync’s complexity.”
+    
+1.10.4 Resource-constrained environments
+C has occupied the domain of microcontrollers for decades. Yet, the Internet of Things (IoT) is coming. That could mean many billions of insecure devices exposed to the network. Any input parsing code will be routinely probed for weaknesses. Given how infrequently firmware updates for these devices occur, it’s critical that these are as secure as possible from the outset. Rust can play an important role here by adding a layer of safety without imposing runtime costs.
+    
+1.10.5 Server-side applications
+Most applications written in Rust live on the server. These could be serving web traffic or supporting businesses running their operations. There is also a tier of services that sit between the OS and your application. Rust is used to write databases, monitoring systems, search appliances, and messaging systems. For example
+* The npm package registry for the JavaScript and node.js communities is written in Rust.22
+* sled (https://github.com/spacejam/sled), an embedded database, can process a workload of 1 billion operations that includes 5% writes in less than a minute on a 16-core machine.
+* Tantivy, a full text search engine, can index 8 GB of English Wikipedia in approximately 100 s on a 4-core desktop machine.23
+1.10.6 Desktop applications
+There is nothing inherent in Rust’s design that prevents it from being deployed to develop user-facing software. Servo, the web browser engine that acted as an incuba- tor for Rust’s early development, is a user-facing application. Naturally, so are games.
+    
+1.10.7 Desktop
+There is still a significant need to write applications that live on people’s computers. Desktop applications are often complex, difficult to engineer, and hard to support. With Rust’s ergonomic approach to deployment and its rigor, it is likely to become the secret sauce for many applications. To start, these will be built by small, independent developers. As Rust matures, so will the ecosystem.
+    
+1.10.8 Mobile
+Android, iOS, and other smartphone operating systems generally provide a blessed path for developers. In the case of Android, that path is Java. In the case of macOS, developers generally program in Swift. There is, however, another way.
+Both platforms provide the ability for native applications to run on them. This is generally intended for applications written in C++, such as games, to be able to be deployed to people’s phones. Rust is able to talk to the phone via the same interface with no additional runtime cost.
+    
+1.10.9 Web
+As you are probably aware, JavaScript is the language of the web. Over time though, this will change. Browser vendors are developing a standard called WebAssembly (Wasm) that promises to be a compiler target for many languages. Rust is one of the first. Porting a Rust project to the browser requires only two additional command-line commands. Several companies are exploring the use of Rust in the browser via Wasm, notably CloudFlare and Fastly.
+    
+1.10.10 Systems programming
+In some sense, systems programming is Rust’s raison d’être. Many large programs have been implemented in Rust, including compilers (Rust itself), video game engines, and operating systems. The Rust community includes writers of parser generators, databases, and file formats.
+    
+Rust has proven to be a productive environment for programmers who share Rust’s goals. Three standout projects in this area include the following:
+* Google is sponsoring the development of Fuchsia OS, an operating system for devices.24
+* Microsoft is actively exploring writing low-level components in Rust for Win- dows.25
+* Amazon Web Services (AWS) is building Bottlerocket, a bespoke OS for hosting containers in the cloud.26
+    
+1.11 Rust’s hidden feature: Its community
+It takes more than software to grow a programming language. One of the things that the Rust team has done extraordinarily well is to foster a positive and welcoming com- munity around the language. Everywhere you go within the Rust world, you’ll find that you’ll be treated with courtesy and respect.
+    
+1.12 Rust phrase book
+When you interact with members of the Rust community, you’ll soon encounter a few terms that have special meaning. Understanding the following terms makes it easier to understand why Rust has evolved the way that it has and the problems that it attempts to solve:
+* Empowering everyone—All programmers regardless of ability or background are welcome to participate. Programming, and particularly systems programming, should not be restricted to a blessed few.
+ Blazingly fast—Rust is a fast programming language. You’ll be able to write pro- grams that match or exceed the performance of its peer languages, but you will have more safety guarantees.
+* Fearless concurrency—Concurrent and parallel programming have always been seen as difficult. Rust frees you from whole classes of errors that have plagued its peer languages.
+* No Rust 2.0—Rust code written today will always compile with a future Rust compiler. Rust is intended to be a reliable programming language that can be depended upon for decades to come. In accordance with semantic versioning, Rust is never backward-incompatible, so it will never release a new major ver- sion.
+* Zero-cost abstractions—The features you gain from Rust impose no runtime cost. When you program in Rust, safety does not sacrifice speed.
+    
+Summary
+* Many companies have successfully built large software projects in Rust.
+* Software written in Rust can be compiled for the PC, the browser, and the
+server, as well as mobile and IoT devices.
+* The Rust language is well loved by software developers. It has repeatedly won
+Stack Overflow’s “most loved programming language” title.
+* Rust allows you to experiment without fear. It provides correctness guarantees
+that other tools are unable to provide without imposing runtime costs.
+* With Rust, there are three main command_line tools to learn:
+– cargo, which manages a whole crate
+– rustup, which manages Rust installations
+– rustc, which manages compilation of Rust source code
+* Rust projects are not immune from all bugs.
+* Rust code is stable, fast, and light on resources.
+
+------
+Language foundations
+This chapter covers
+* Coming to grips with the Rust syntax
+* Learning fundamental types and data structures
+* Building command-line utilities
+* Compiling programs
+
+This chapter introduces you to the fundamentals of Rust programming. By the end of the chapter, you will be able to create command-line utilities and should be able to get the gist of most Rust programs. We’ll work through most of the language’s syntax, but defer much of the detail about why things are how they are for later in the book.
+
+NOTE Programmers who have experience with another programming language will benefit the most from this chapter. If you are an experienced Rust programmer, feel free to skim through it.
+
+Beginners are welcomed. Rust’s community strives to be responsive to newcomers. At times, you may strike a mental pothole when you encounter terms such as lifetime elision, hygienic macros, move semantics, and algebraic data types without context. Don’t be afraid to ask for help. The community is much more welcoming than these helpful, yet opaque, terms might suggest.
+
+In this chapter, we will build grep-lite, a greatly stripped-down version of the ubiquitous grep utility. Our grep-lite program looks for patterns within text and prints lines that match. This simple program allows us to focus on the unique features of Rust.
+
+The chapter takes a spiral approach to learning. A few concepts will be discussed multiple times. With each iteration, you will find yourself learning more. Figure 2.1 shows a completely unscientific map of the chapter.
+Figure 2.1 Chapter topic outline. Starting with primitive types, the chapter progresses through several concepts with increasing levels of depth.
+
+It’s highly recommended that you follow along with the examples in this book. As a reminder, to access or download the source code for the listings, use either of these two sources:
+* https://manning.com/books/rust-in-action
+* https://github.com/rust-in-action/code
+
+2.1 Creating a running program
+Every plain text file has a hidden superpower: when it includes the right symbols, it can be converted into something that can be interpreted by a CPU. That is the magic of a programming language. This chapter’s aim is to allow you to become familiar with the process of converting Rust source code into a running program.
+
+Understanding this process is more fun than it sounds! And it sets you up for an exciting learning journey. By the end of chapter 4, you will have implemented a virtual CPU that can also interpret programs that you create.
+
+2.1.1 Compiling single files with rustc
+Listing 2.1 is a short, yet complete Rust program. To translate it into a working program, we use software called a compiler. The compiler’s role is to translate the source code into machine code, as well as take care of lots of bookkeeping to satisfy the operating system (OS) and CPU that it is a runnable program. The Rust compiler is called rustc. You’ll find the source code for listing 2.1 in the file ch2/ok.rs.
+
+Listing 2.1 Almost the shortest valid Rust program
+```
+1 fn main() {
+2   println!("OK")
+3 }
+```
+
+To compile a single file written in Rust into a working program
+1 Save your source code to a file. In our case, we’ll use the filename ok.rs.
+2 Make sure that the source code includes a main() function.
+3 Open a shell window such as Terminal, cmd.exe, Powershell, bash, zsh, or any other.
+4 Execute the command rustc <file>, where <file> is the file you want to compile.
+
+When compilation succeeds, rustc sends no output to the console. Behind the scenes, rustc has dutifully created an executable, using the input filename to choose the output filename.
+
+Assuming that you’ve saved listing 2.1 to a file called ok.rs, let’s see what that looks like. The following snippet provides a short demonstration of the process
+```
+$ rustc ok.rs
+$ ./ok
+OK
+```
+For Windows, include the .exe filename extension (for example, ok.exe).
+
+2.1.2 Compiling Rust projects with cargo
+Most Rust projects are larger than a single file. These typically include dependencies. To prepare ourselves for that, we’ll use a higher-level tool than rustc, called cargo. cargo understands how to drive rustc (and much more).
+
+Migrating from a single file workflow managed by rustc to one managed by cargo is a two-stage process. The first is to move that original file into an empty directory. Then execute the cargo init command.
+
+Here is a detailed overview of that process, assuming that you are starting from a file called ok.rs generated by following the steps in the previous section:
+1 Run mkdir <project> to create an empty directory (e.g., mkdir ok).
+2 Move your source code into the <project> directory (e.g., mv ok.rs ok).
+3 Change to the <project> directory (e.g., cd ok).
+4 Run cargo init.
+
+From this point on, you can issue cargo run to execute your project’s source code. One difference from rustc is that compiled executables are found in a <project>/ target subdirectory. Another is that cargo provides much more output by default:
+```
+$ cargo run
+Finished dev [unoptimized + debuginfo] target(s) in 0.03s
+Running `target/debug/ok`
+OK
+```
+
+If you’re ever curious about what cargo is doing under the hood to drive rustc, add the verbose flag (-v) to your command:
+```
+$ rm -rf target/
+$ cargo run -v
+  Compiling ok v0.1.0 (/tmp/ok)
+    Running `rustc
+    --crate-name ok
+    --edition=2018
+    ok.rs
+    --error-format=json
+    --json=diagnostic-rendered-ansi
+    --crate-type bin
+    --emit=dep-info,link
+    -C embed-bitcode=no
+    -C debuginfo=2
+    -C metadata=55485250d3e77978
+    -C extra-filename=-55485250d3e77978
+    --out-dir /tmp/ok/target/debug/deps
+    -C incremental=/tmp/target/debug/incremental
+    -L dependency=/tmp/ok/target/debug/deps
+    -C link-arg=-fuse-ld=lld`
+  Finished dev [unoptimized + debuginfo] target(s) in 0.31s
+    Running `target/debug/ok`
+OK
+```
+
+2.2 A glance at Rust’s syntax
+Rust is boring and predictable where possible. It has variables, numbers, functions, and other familiar things that you have seen in other languages. For example, it delimits blocks with curly brackets ({ and }), it uses a single equals sign as its assignment operator (=), and it is whitespace-agnostic.
+
+2.2.1 Defining variables and calling functions
+Let’s look at another short listing to introduce some fundamentals: defining variables with type annotations and calling functions. Listing 2.2 prints ( a + b ) + ( c + d ) = 90 to the console. As you can see from lines 2–5 in the listing, there are multiple syntactic choices for annotating data types to integers. Use whichever feels most natural for the situation at hand. The source code for this listing is in ch2/ch2-first-steps.rs.
+
+Listing 2.2 Adding integers using variables and declaring types
+```
+1 fn main() {
+2   let a = 10;
+3   let b: i32 = 20;
+4   let c = 30i32;
+5   let d = 30_i32;
+6   let e = add(add(a, b), add(c, d));
+7
+8   println!("( a + b ) + ( c + d ) = {}", e);
+9 }
+10
+11 fn add(i: i32, j: i32) -> i32 {
+12  i + j
+13 }
+```
+Rust is flexible with the location of the main() function.
+Types can be inferred by the compiler…
+…or declared by the programmer when creating variables.
+Numeric types can include a type annotation in their literal form.
+Numbers can include underscores, which are intended to increase readability and have no functional impact.
+Type declarations are required when defining functions.
+Functions return the last expression’s result so that return is not required.
+
+NOTE In the listing, be careful about adding a semicolon to the add() function declaration. This changes the semantics, returning () (unit) rather than i32.
+
+Although there are only 13 lines of code, there is quite a lot packed into listing 2.2. Here’s a brief description that should provide the gist of what’s going on. We will cover the details in the rest of the chapter.
+
+In line 1 (fn main() {), the fn keyword begins a function definition. The entry point to all Rust programs is main(). It takes no arguments and returns no value.1 Code blocks, also known as lexical scopes, are defined with curly braces: { and }.
+1 This isn’t technically correct, but is accurate enough for now. If you’re an experienced Rust programmer skimming through this chapter, you’ll know that main() returns () (unit) by default and can also return a Result.
+
+In line 2 (let a = 10;), we use let to declare variable bindings. Variables are immutable by default, meaning that they are read-only rather than read-write. And finally, statements are delimited with semicolons (;).
+
+In line 3 (let b: i32 = 20;), you can designate a specific data type for the compiler. At times, this will be required as the compiler will be unable to deduce a unique type on your behalf.
+
+In line 4 (let c = 30i32;), you’ll note that Rust’s numeric literals can include types annotations. This can be helpful when navigating complex numerical expressions. And in line 5 (let c = 30_i32;), you’ll see that Rust permits the use of underscores within numeric literals. These increase readability but are insignificant to the compiler. In line 6 (let e = add(add(a, b), add(c, d));), it should be easy to see that calling functions looks like what you’ve experienced in most other programming languages.
+
+In line 8 (println!("( a + b ) + ( c + d ) = {}", e); ), println!() is a macro, which is function-like but returns code rather than values. When printing to the console, every input data type has its own way of being represented as a text string. println!() takes care of figuring out the exact methods to call on its arguments.
+
+Strings use double quotes (") rather than single quotes ('). Rust uses single quotes for single characters, which are a distinct type, char. And with Rust, string formatting uses {} as a placeholder, rather than the C-like printf style of %s or other variants.
+
+Finally, in line 10 (fn add(…) -> i32 {), you can see that Rust’s syntax for defining functions is similar to those programming languages that use explicit type declarations. Commas delimit parameters, and type declarations follow variable names. The dagger (->) or thin arrow syntax indicates the return type.
+
+2.3 Numbers
+Computers have been associated with numbers for longer than you have been able to say “formula translator.” This section discusses how to create numeric types in Rust and how to perform operations on these.
+
+2.3.1 Integers and decimal (floating-point) numbers
+Rust uses a relatively conventional syntax for creating integers (1, 2, …) and floatingpoint numbers (1.0, 1.1, …). Operations on numbers use infix notation, meaning that numeric expressions look like those that you’re used to seeing in most programming languages. To operate on multiple types, Rust also allows the same token (+) for addition. This is called operator overloading. Some notable differences from other languages follow:
+* Rust includes a large number of numeric types. You will become used to declaring the size in bytes, which affects how many numbers the type can represent and whether your type is able to represent negative numbers.
+* Conversions between types are always explicit. Rust does not automatically convert your 16-bit integer into a 32-bit integer.
+* Rust’s numbers can have methods. For example, to round 24.5 to the nearest integer, Rust programmers use 24.5_f32.round() rather than (round(24.5_f32)). Here, the type suffix is required because a concrete type is necessary.
+
+To start, let’s consider a small example. You’ll find the code in ch2/ch2-intro-tonumbers.rs in the examples for this book. Listing 2.3 prints these few lines to the console:
+```
+20 + 21 + 22 = 63
+1000000000000
+42
+```
+
+Listing 2.3 Numeric literals and basic operations on numbers in Rust
+```
+1 fn main() {
+2   let twenty = 20;
+3   let twenty_one: i32 = 21;
+4   let twenty_two = 22i32;
+5
+6   let addition = twenty + twenty_one + twenty_two;
+7   println!("{} + {} + {} = {}", twenty, twenty_one, twenty_two, addition);
+8
+9   let one_million: i64 = 1_000_000;
+10  println!("{}", one_million.pow(2));
+11
+12  let forty_twos = [
+13    42.0,
+14    42f32,
+15    42.0_f32,
+16  ];
+17
+18/   println!("{:02}", forty_twos[0]);
+19 }
+```
+Rust infers a type on your behalf if you don’t supply one…
+…which is done by adding type annotations (i32)…
+…or type suffixes.
+Underscores increase readability and are ignored by the compiler.
+Numbers have methods.
+Creates an array of numbers, which must all be the same type, by surrounding those with square brackets
+Floating-point literals without an explicit type annotation become 32-bit or 64-bit, depending on context.
+Floating-point literals can also have type suffixes…
+…and optional underscores.
+Elements within arrays can be indexed numerically, starting at 0.
+
+2.3.2 Integers with base 2, base 8, and base 16 notation
+Rust also has built-in support for numeric literals that allow you to define integers in base 2 (binary), base 8 (octal), and base 16 (hexadecimal). This notation is also available within the formatting macros like println!. Listing 2.4 demonstrates the three styles. You can find the source code for this listing in ch2/ch2-non-base2.rs. It produces the following output:
+```
+base 10: 3 30 300
+base 2: 11 11110 100101100
+base 8: 3 36 454
+base 16: 3 1e 12c
+```
+
+Listing 2.4 Using base 2, base 8, and base 16 numeric literals
+```
+1 fn main() {
+2 let three = 0b11;
+3 let thirty = 0o36;
+4 let three_hundred = 0x12C;
+5
+6 println!("base 10: {} {} {}", three, thirty, three_hundred);
+7 println!("base 2: {:b} {:b} {:b}", three, thirty, three_hundred);
+8 println!("base 8: {:o} {:o} {:o}", three, thirty, three_hundred);
+9 println!("base 16: {:x} {:x} {:x}", three, thirty, three_hundred);
+10 }
+```
+The 0b prefix indicates binary (base 2) numerals.
+The 0o prefix indicates octal (base 8) numerals.
+The 0x prefix indicates hexadecimal (base 16) numerals.
+
+In binary (base 2) numerals, 0b11 equals 3 because 3 = 2 × 1 + 1 × 1. With octal (base 8) numerals, 0o36 equals 30 because 30 = 8 × 3 + 1 × 6. And with hexadecimal (base 16) numerals, 0x12C equals 300 because 300 = 256 × 1 + 16 × 2 + 1 × 12. Table 2.1 shows the types that represent scalar numbers.
+
+Table 2.1 Rust types for representing scalar (single) numbers
+```
+i8, i16, i32, i64 Signed integers ranging from 8 bit to 64 bit.
+u8, u16, u32, u64 Unsigned integers ranging from 8 bit to 64 bit.
+f32, f64 Floating-point numbers in 32-bit and 64-bit variants.
+isize, usize Integers that assume the CPU’s “native” width. For example, in 64-bit CPUs, usize and isize will be 64-bits wide.
+```
+
+Rust contains a full complement of numeric types. The types are grouped into a few families:
+* Signed integers (i) represent negative as well as positive integers.
+* Unsigned integers (u) only represent positive integers but can go twice as high as their signed counterparts.
+* Floating-point types (f) represent real numbers with special bit patterns to represent infinity, negative infinity, and “not a number” values.
+
+Integer width is the number of bits that the type uses in RAM and in the CPU. Types that take up more space, such as u32 vs. i8, can represent a wider range of numbers. But this incurs the expense of needing to store extra zeros for smaller numbers, as table 2.2 shows.
+
+Table 2.2 Multiple bit patterns can represent the same number.
+```
+Number Type Bit pattern in memory
+20 u32 00000000000000000000000000010100
+20 i8 00000000000000000000000000010100
+20 f32 01000001101000000000000000000000
+```
+
+Although we’ve only touched on numbers, we nearly have enough exposure to Rust to create a prototype of our pattern-matching program. But let’s look at comparing numbers before we create our program.
+
+2.3.3 Comparing numbers
+Rust’s numeric types support a large suite of comparisons that you’re probably familiar with. Enabling support for these comparisons is provided by a feature that you have not encountered yet. It is called traits.2 Table 2.3 summarizes the comparison operators available to you.
+2 For the curious and eager, the traits involved here are std::cmp::PartialOrd and std::cmp::PartialEq.
+
+Table 2.3 Mathematical operators supported by Rust’s numeric types
+```
+Operator Rust syntax Example
+Less than (<) < 1.0 < 2.0
+Greater than (>) > 2.0 > 1.0
+Equal to (=) == 1.0 == 1.0
+Unequal to () != 1.0 != 2.0
+Equal to or less than () <= 1.0 <= 2.0
+Equal to greater than or () >= 2.0 >= 1.0
+```
+
+That support does include a few caveats. We’ll look at these conditions in the rest of this section.
+
+IMPOSSIBLE TO COMPARE DIFFERENT TYPES
+Rust’s type safety requirements prevent comparisons between types. For example, this code does not compile:
+```
+fn main() {
+  let a: i32 = 10;
+  let b: u16 = 100;
+  if a < b {
+    println!("Ten is less than one hundred.");
+  }
+```
+
+To appease the compiler, we need to use an as operator to cast one of the operands to the other’s type. The following code shows this type cast: b as i32:
+```
+fn main() {
+  let a: i32 = 10;
+  let b: u16 = 100;
+  if a < (b as i32) {
+    println!("Ten is less than one hundred.");
+  }
+}
+```
+
+It is safest to cast the smaller type to a larger one (for example, a 16-bit type to a 32-bit type). This is sometimes referred to as promotion. In this case, we could have demoted a down to a u16, but such a move is generally more risky.
+
+WARNING Using type casts carelessly will cause your program to behave unexpectedly. For example, the expression 300_i32 as i8 returns 44.
+
+In some cases, using the as keyword is too restrictive. It’s possible to regain fuller control over the type conversion process at the cost of introducing some bureaucracy. The following listing shows a Rust method to use instead of the as keyword when the conversion might fail.
+
+------
+
